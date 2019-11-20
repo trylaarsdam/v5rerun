@@ -40,7 +40,7 @@ int main() {
         myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
       }
       else if(Controller1.Axis3.position(percent) < 0) {
-        myTestData[i+0] = (uint8_t)abs((Controller1.Axis3.position(percent)) + 100);
+        myTestData[i+0] = (uint8_t)abs((Controller1.Axis3.position(percent)))+100;
       }
       Lmotor.spin(fwd, Controller1.Axis3.position(percent), percentUnits::pct);
 
@@ -58,7 +58,7 @@ int main() {
       }
       else if(Controller1.ButtonL2.pressing() == 0) {
         
-        myTestData[i+2] = (uint8_t)(Controller1.ButtonL2.pressing()*400);
+        myTestData[i+2] = (uint8_t)(Controller1.ButtonL2.pressing()*100);
       }
 
      // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
