@@ -26,7 +26,7 @@
 using namespace vex;
 
 // storage for some information to save
-uint32_t loopCount = 3*1000;
+uint32_t loopCount = 6*1000;
 uint8_t     myTestData[15000];
 uint8_t     myReadBuffer[15000];
 int nWritten = 0;
@@ -34,11 +34,28 @@ int main() {
     // set the test data to something detectable
     // write test data to SD Card
     vex::task::sleep(1000);
-    for(int i=0;i<loopCount;i=i+3)
+    for(int i=0;i<loopCount;i=i+6)
     {
+      if(Controller1.Axis3.position(percent) >= 0) {
       myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
-      myTestData[i+1] = (uint8_t)(Controller1.Axis2.position(percent)); //fill array with all info, then write buffer
-      myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing() * 100);
+      }
+      else if(Controller1.Axis3.position(percent) < 0) {
+      myTestData[i+3] = (uint8_t)(Controller1.Axis3.position(percent));
+      }
+      Lmotor.spin(fwd, Controller1.Axis3.position(percent), percentUnits::pct);
+      if(Controller1.Axis2.position(percent) >= 0) {
+      myTestData[i+1] = (uint8_t)(Controller1.Axis3.position(percent));
+      }
+      else if(Controller1.Axis2.position(percent) < 0) {
+      myTestData[i+4] = (uint8_t)(Controller1.Axis3.position(percent));
+      }
+      Rmotor.spin(fwd, Controller1.Axis2.position(percent), percentUnits::pct);
+      if(Controller1.ButtonL1.pressing() > 0) {
+      myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing()*100);
+      }
+      else if(Controller1.ButtonL2.pressing() == 0) {
+      myTestData[i+5] = (uint8_t)(Controller1.ButtonL2.pressing()*100);
+      }
      // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
       vex::task::sleep(15);
     }
@@ -65,11 +82,37 @@ int main() {
     else {
         Brain.Screen.printAt( 10, 40, "Error writing to the SD Card" );        
     }
-    for(int i=0;i<1000;i++)
+    for(int i=0;i<loopCount;i=i+6)
     {
-      Lmotor.spin(fwd, (double)myReadBuffer[0], pct);
-      Rmotor.spin(fwd, (double)myReadBuffer[1], pct);
-      Lift.spin(fwd, (double)myReadBuffer[2], pct);
+      if(myReadBuffer[i+0]){
+      Lmotor.spin(fwd, (double)myReadBuffer[i+0], pct);
+      }
+      else if(myReadBuffer[i+4]){
+      Lmotor.spin(fwd, -(double)myReadBuffer[i+4], pct);
+      }
+      else{
+        Lmotor.stop();
+      }
+
+      if(myReadBuffer[i+1]){
+      Rmotor.spin(fwd, (double)myReadBuffer[i+1], pct);
+      }
+      else if(myReadBuffer[i+5]){
+      Rmotor.spin(fwd, -(double)myReadBuffer[i+5], pct);
+      }
+      else {
+        Rmotor.stop();
+      }
+      
+      if(myReadBuffer[i+2]){
+      Lift.spin(fwd, (double)myReadBuffer[i+2], pct);
+      }
+      else if(myReadBuffer[i+6]){
+      Lift.spin(fwd, -((double)myReadBuffer[i+6]), pct);
+      }
+      else {
+        Lift.stop(brakeType::brake);
+      }      
       vex::task::sleep(15);
     }
 }
