@@ -26,6 +26,7 @@
 using namespace vex;
 
 // storage for some information to save
+uint32_t loopCount = 3*1000;
 uint8_t     myTestData[15000];
 uint8_t     myReadBuffer[15000];
 int nWritten = 0;
@@ -33,18 +34,14 @@ int main() {
     // set the test data to something detectable
     // write test data to SD Card
     vex::task::sleep(1000);
-    for(int i=0;i<999;i++)
+    for(int i=0;i<loopCount;i=i+3)
     {
-      myTestData[1] = (Controller1.Axis3.position(percent));
-      myTestData[2] = (Controller1.Axis2.position(percent));
-      myTestData[3] = (Controller1.ButtonL1.pressing() * 100);
-      nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
+      myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
+      myTestData[i+1] = (uint8_t)(Controller1.Axis2.position(percent)); //fill array with all info, then write buffer
+      myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing() * 100);
+     // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
       vex::task::sleep(15);
     }
-    myTestData[1] = (Controller1.Axis3.position(percent));
-    myTestData[2] = (Controller1.Axis2.position(percent));
-    myTestData[3] = (Controller1.ButtonL1.pressing() * 100);
-    //Brain.SDcard.savefile( "test.h", myTestData, sizeof(myTestData) );
     nWritten = Brain.SDcard.savefile( "test.txt", myTestData, sizeof(myTestData) );
 
     // did that work ?
@@ -63,16 +60,16 @@ int main() {
         // and display some of the data
         Brain.Screen.setCursor( 6, 2 );
         for(int i=0;i<8;i++)
-            Brain.Screen.print("%f ", (float)myReadBuffer[i]);
+            Brain.Screen.print("%i ", myReadBuffer[i]);
     }
     else {
         Brain.Screen.printAt( 10, 40, "Error writing to the SD Card" );        
     }
     for(int i=0;i<1000;i++)
     {
-      Lmotor.spin(fwd, (float)myReadBuffer[1], pct);
-      Rmotor.spin(fwd, (float)myReadBuffer[2], pct);
-      Lift.spin(fwd, (float)myReadBuffer[3], pct);
+      Lmotor.spin(fwd, (float)myReadBuffer[0], pct);
+      Rmotor.spin(fwd, (float)myReadBuffer[1], pct);
+      Lift.spin(fwd, (float)myReadBuffer[2], pct);
       vex::task::sleep(15);
     }
 }

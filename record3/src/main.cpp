@@ -32,8 +32,11 @@ int main() {
     // set the test data to something detectable
     // write test data to SD Card
     vex::task::sleep(1000);
-    myTestData[0] = (Controller1.Axis3.position(percent));
-    
+    myTestData[0] = (uint8_t)(Controller1.Axis3.position(percent)); //cast to 1 byte
+    Brain.Screen.setCursor( 9, 2 );
+    for(int i=0;i<8;i++){
+            Brain.Screen.print("%i ", myTestData[i]);
+    }
     //Brain.SDcard.savefile( "test.h", myTestData, sizeof(myTestData) );
     int nWritten = Brain.SDcard.savefile( "test.txt", myTestData, sizeof(myTestData) );
 
@@ -53,10 +56,10 @@ int main() {
         // and display some of the data
         Brain.Screen.setCursor( 6, 2 );
         for(int i=0;i<8;i++)
-            Brain.Screen.print("%f ", (float)myReadBuffer[i]);
+            Brain.Screen.print("%i ", myReadBuffer[i]);
     }
     else {
         Brain.Screen.printAt( 10, 40, "Error writing to the SD Card" );        
     }
-    Drivetrain.driveFor((float)myReadBuffer[0], inches);
+    Drivetrain.driveFor((double)myReadBuffer[0], inches);
 }
