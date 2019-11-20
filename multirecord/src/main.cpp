@@ -37,25 +37,31 @@ int main() {
     for(int i=0;i<loopCount;i=i+6)
     {
       if(Controller1.Axis3.position(percent) >= 0) {
-      myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
+        myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
       }
       else if(Controller1.Axis3.position(percent) < 0) {
-      myTestData[i+3] = (uint8_t)(Controller1.Axis3.position(percent));
+        myTestData[i+3] = ((uint8_t)(Controller1.Axis3.position(percent)));
+        myTestData[i+0] = 0;
       }
       Lmotor.spin(fwd, Controller1.Axis3.position(percent), percentUnits::pct);
+
       if(Controller1.Axis2.position(percent) >= 0) {
-      myTestData[i+1] = (uint8_t)(Controller1.Axis3.position(percent));
+        myTestData[i+1] = (uint8_t)(Controller1.Axis2.position(percent));
       }
       else if(Controller1.Axis2.position(percent) < 0) {
-      myTestData[i+4] = (uint8_t)(Controller1.Axis3.position(percent));
+        myTestData[i+4] = ((uint8_t)(Controller1.Axis2.position(percent)));
+        myTestData[i+1] = 0;
       }
       Rmotor.spin(fwd, Controller1.Axis2.position(percent), percentUnits::pct);
+
       if(Controller1.ButtonL1.pressing() > 0) {
-      myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing()*100);
+        myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing()*100);
       }
-      else if(Controller1.ButtonL2.pressing() == 0) {
-      myTestData[i+5] = (uint8_t)(Controller1.ButtonL2.pressing()*100);
+      else if(Controller1.ButtonR2.pressing() == 0) {
+        myTestData[i+5] = (uint8_t)(Controller1.ButtonR2.pressing()*100);
+        myTestData[i+2] = 0;
       }
+
      // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
       vex::task::sleep(15);
     }
@@ -82,37 +88,48 @@ int main() {
     else {
         Brain.Screen.printAt( 10, 40, "Error writing to the SD Card" );        
     }
+
+
+
     for(int i=0;i<loopCount;i=i+6)
     {
-      if(myReadBuffer[i+0]){
-      Lmotor.spin(fwd, (double)myReadBuffer[i+0], pct);
-      }
-      else if(myReadBuffer[i+4]){
-      Lmotor.spin(fwd, -(double)myReadBuffer[i+4], pct);
-      }
-      else{
-        Lmotor.stop();
-      }
-
-      if(myReadBuffer[i+1]){
-      Rmotor.spin(fwd, (double)myReadBuffer[i+1], pct);
-      }
-      else if(myReadBuffer[i+5]){
-      Rmotor.spin(fwd, -(double)myReadBuffer[i+5], pct);
-      }
-      else {
-        Rmotor.stop();
+      if((int)myReadBuffer[i+0]){
+        Lmotor.spin(forward, (int)myReadBuffer[i+0], pct);
       }
       
-      if(myReadBuffer[i+2]){
-      Lift.spin(fwd, (double)myReadBuffer[i+2], pct);
+      if((int)myReadBuffer[i+3]){
+        Lmotor.spin(reverse, ((float)myReadBuffer[i+3]), pct);
       }
-      else if(myReadBuffer[i+6]){
-      Lift.spin(fwd, -((double)myReadBuffer[i+6]), pct);
+      //else{
+      //  Lmotor.stop();
+      //}
+
+      if((int)myReadBuffer[i+1]){
+        Rmotor.spin(forward, (int)myReadBuffer[i+1], pct);
       }
-      else {
-        Lift.stop(brakeType::brake);
-      }      
+      
+      if((int)myReadBuffer[i+4]){
+        Rmotor.spin(reverse, ((float)myReadBuffer[i+4]), pct);
+      }
+      //else {
+      //  Rmotor.stop();
+      //}
+
+      if((int)myReadBuffer[i+2]){
+        Lift.spin(forward, (int)myReadBuffer[i+2], pct);
+      }
+      else if((int)myReadBuffer[i+5]){
+        Lift.spin(reverse, (int)myReadBuffer[i+5], pct);
+      }
+      else{
+              Lift.stop();
+      }
+      //else {
+        //Lift.stop(brakeType::brake);
+      //}      
       vex::task::sleep(15);
+      Lmotor.stop();
+      Rmotor.stop();
+
     }
 }
