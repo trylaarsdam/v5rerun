@@ -67,9 +67,9 @@ int main() {
     }
     for(int i=0;i<1000;i++)
     {
-      Lmotor.spin(fwd, (float)myReadBuffer[0], pct);
-      Rmotor.spin(fwd, (float)myReadBuffer[1], pct);
-      Lift.spin(fwd, (float)myReadBuffer[2], pct);
+      Lmotor.spin(fwd, (double)myReadBuffer[0], pct);
+      Rmotor.spin(fwd, (double)myReadBuffer[1], pct);
+      Lift.spin(fwd, (double)myReadBuffer[2], pct);
       vex::task::sleep(15);
     }
 }
