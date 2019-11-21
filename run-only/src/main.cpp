@@ -15,7 +15,7 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// Lmotor               motor         1               
+// Lmotor               motor         2               
 // Rmotor               motor         10              
 // Lift                 motor         8               
 // Claw                 motor         3               
@@ -26,53 +26,13 @@
 using namespace vex;
 
 // storage for some information to save
-uint32_t loopCount = 6*1000;
+uint32_t loopCount = 3*1000;
 uint8_t     myTestData[15000];
 uint8_t     myReadBuffer[15000];
 int nWritten = 0;
 int main() {
     // set the test data to something detectable
     // write test data to SD Card
-    vex::task::sleep(1000);
-    for(int i=0;i<loopCount;i=i+6)
-    {
-      if(Controller1.Axis3.position(percent) >= 0) {
-        myTestData[i+0] = (uint8_t)(Controller1.Axis3.position(percent));
-      }
-      else if(Controller1.Axis3.position(percent) < 0) {
-        myTestData[i+3] = ((uint8_t)(Controller1.Axis3.position(percent)));
-        myTestData[i+0] = 0;
-      }
-      Lmotor.spin(fwd, Controller1.Axis3.position(percent), percentUnits::pct);
-
-      if(Controller1.Axis2.position(percent) >= 0) {
-        myTestData[i+1] = (uint8_t)(Controller1.Axis2.position(percent));
-      }
-      else if(Controller1.Axis2.position(percent) < 0) {
-        myTestData[i+4] = ((uint8_t)(Controller1.Axis2.position(percent)));
-        myTestData[i+1] = 0;
-      }
-      Rmotor.spin(fwd, Controller1.Axis2.position(percent), percentUnits::pct);
-
-      if(Controller1.ButtonL1.pressing() > 0) {
-        myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing()*100);
-      }
-      else if(Controller1.ButtonR2.pressing() == 0) {
-        myTestData[i+5] = (uint8_t)(Controller1.ButtonR2.pressing()*100);
-        myTestData[i+2] = 0;
-      }
-
-     // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
-      vex::task::sleep(15);
-    }
-    nWritten = Brain.SDcard.savefile( "test.txt", myTestData, sizeof(myTestData) );
-
-    // did that work ?
-    if( nWritten > 0) {
-        // display on screen how many bytes we wrote
-        Brain.Screen.setCursor( 2, 2 );
-        Brain.Screen.print( "We wrote %d bytes to the SD Card", nWritten );
-
         // now read it back into a different buffer
         int nRead = Brain.SDcard.loadfile( "test.txt", myReadBuffer, sizeof(myReadBuffer) );
 
@@ -84,45 +44,37 @@ int main() {
         Brain.Screen.setCursor( 6, 2 );
         for(int i=0;i<8;i++)
             Brain.Screen.print("%i ", myReadBuffer[i]);
-    }
-    else {
-        Brain.Screen.printAt( 10, 40, "Error writing to the SD Card" );        
-    }
 
-
-
-    for(int i=0;i<loopCount;i=i+6)
+    for(int i=0;i<loopCount;i=i+3)
     {
-      if((int)myReadBuffer[i+0]){
+      if((int)myReadBuffer[i+0] < 101){
         Lmotor.spin(forward, (int)myReadBuffer[i+0], pct);
       }
-      
-      if((int)myReadBuffer[i+3]){
-        Lmotor.spin(reverse, ((float)myReadBuffer[i+3]), pct);
+      else if((int)myReadBuffer[i+0] >= 101){
+        Lmotor.spin(forward, -((float)myReadBuffer[i+0] - 100), pct);
       }
       //else{
       //  Lmotor.stop();
       //}
 
-      if((int)myReadBuffer[i+1]){
+      if((int)myReadBuffer[i+1] < 101){
         Rmotor.spin(forward, (int)myReadBuffer[i+1], pct);
       }
-      
-      if((int)myReadBuffer[i+4]){
-        Rmotor.spin(reverse, ((float)myReadBuffer[i+4]), pct);
+      else if((int)myReadBuffer[i+1] > 100){
+        Rmotor.spin(forward, -((float)myReadBuffer[i+1] - 100), pct);
       }
       //else {
       //  Rmotor.stop();
       //}
 
-      if((int)myReadBuffer[i+2]){
-        Lift.spin(forward, (int)myReadBuffer[i+2], pct);
+      if((int)myReadBuffer[i+2] == 100){
+        Lift.spin(forward, -100, pct);
       }
-      else if((int)myReadBuffer[i+5]){
-        Lift.spin(reverse, (int)myReadBuffer[i+5], pct);
+      else if((int)myReadBuffer[i+2] == 200){
+        Lift.spin(forward, 100, pct);
       }
       else{
-              Lift.stop();
+        Lift.stop(brakeType::brake);
       }
       //else {
         //Lift.stop(brakeType::brake);
