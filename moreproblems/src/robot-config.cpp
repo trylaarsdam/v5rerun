@@ -9,10 +9,14 @@ brain  Brain;
 
 // VEXcode device constructors
 controller Controller1 = controller(primary);
-motor Lmotor = motor(PORT1, ratio18_1, false);
+motor Lmotor = motor(PORT2, ratio18_1, false);
 motor Rmotor = motor(PORT10, ratio18_1, true);
-motor Lift = motor(PORT8, ratio36_1, false);
-motor Claw = motor(PORT3, ratio18_1, false);
+motor LiftL = motor(PORT6, ratio36_1, false);
+motor LiftR = motor(PORT8, ratio36_1, true);
+motor Claw = motor(PORT17, ratio18_1, false);
+vex::motor liftMotor1 = vex::motor(PORT3, vex::gearSetting::ratio36_1, true);
+vex::motor liftMotor2 = vex::motor(PORT9, vex::gearSetting::ratio36_1, false);
+motor_group Lift = motor_group(LiftL, LiftR);
 
 // VEXcode generated functions
 

@@ -15,7 +15,7 @@
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
 // Controller1          controller                    
-// Lmotor               motor         1               
+// Lmotor               motor         2               
 // Rmotor               motor         10              
 // Lift                 motor         8               
 // Claw                 motor         3               
@@ -48,17 +48,21 @@ int main() {
         myTestData[i+1] = (uint8_t)(Controller1.Axis2.position(percent));
       }
       else if(Controller1.Axis2.position(percent) < 0) {
-        
         myTestData[i+1] = (uint8_t)abs((Controller1.Axis2.position(percent)))+100;
       }
       Rmotor.spin(fwd, Controller1.Axis2.position(percent), percentUnits::pct);
 
-      if(Controller1.ButtonL1.pressing() > 0) {
-        myTestData[i+2] = (uint8_t)(Controller1.ButtonL1.pressing()*100);
+      if(Controller1.ButtonL1.pressing()) {
+        myTestData[i+2] = 100;
+        Lift.spin(forward, -100, pct);
       }
-      else if(Controller1.ButtonL2.pressing() == 0) {
-        
-        myTestData[i+2] = (uint8_t)(Controller1.ButtonL2.pressing()*100);
+      else if(Controller1.ButtonL2.pressing()) {
+        myTestData[i+2] = 200;
+        Lift.spin(forward, 100, pct);
+      }
+      else {
+        myTestData[i+2] = 0;
+        Lift.stop(brakeType::brake);
       }
 
      // nWritten = Brain.SDcard.appendfile( "test.txt", myTestData, sizeof(myTestData) );
@@ -112,11 +116,11 @@ int main() {
       //  Rmotor.stop();
       //}
 
-      if((int)myReadBuffer[i+2] < 101){
-        Lift.spin(forward, (int)myReadBuffer[i+2], pct);
+      if((int)myReadBuffer[i+2] == 100){
+        Lift.spin(forward, 100, pct);
       }
-      else if((int)myReadBuffer[i+2] >= 101){
-        Lift.spin(reverse, (int)myReadBuffer[i+2], pct);
+      else if((int)myReadBuffer[i+2] == 200){
+        Lift.spin(reverse, 100, pct);
       }
       else{
               Lift.stop();
