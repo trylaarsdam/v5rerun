@@ -26,7 +26,7 @@
 using namespace vex;
 
 // storage for some information to save
-uint32_t loopCount = 3*1000;
+uint32_t loopCount = 12*1000;
 uint8_t     myTestData[15000];
 uint8_t     myReadBuffer[15000];
 int nWritten = 0;
@@ -84,4 +84,4 @@ int main() {
       Rmotor.stop();
 
     }
-}
+/* Arm Claw Thing and Stuff */
